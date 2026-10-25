@@ -13,7 +13,13 @@ Write-Host ''
 $task = Get-ScheduledTask -TaskName $TaskName -ErrorAction SilentlyContinue
 if ($task) { Line 'Auto-login:' 'installed' 'Green' } else { Line 'Auto-login:' 'NOT installed (double-click Install.bat)' 'Red' }
 
-Line 'Saved login:' $(if (Test-Path (Join-Path $InstallDir 'cred.xml')) { 'yes' } else { 'no (run Install.bat)' })
+if (Test-Path (Join-Path $InstallDir 'badlogin.flag')) {
+    Line 'Saved login:' 'WRONG username or password - use Change password' 'Red'
+} elseif (Test-Path (Join-Path $InstallDir 'cred.xml')) {
+    Line 'Saved login:' "yes ($((Import-Clixml (Join-Path $InstallDir 'cred.xml')).UserName))"
+} else {
+    Line 'Saved login:' 'no (run Install.bat)' 'Red'
+}
 
 $net = (netsh wlan show interfaces | Select-String '^\s*SSID\s*:\s*(.+)$' | Select-Object -First 1)
 Line 'Wi-Fi network:' $(if ($net) { $net.Matches.Groups[1].Value.Trim() } else { 'not connected' })

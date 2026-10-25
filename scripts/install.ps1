@@ -22,7 +22,7 @@ try {
         Copy-Item $f.FullName (Join-Path $InstallDir $f.Name) -Force
         Unblock-File (Join-Path $InstallDir $f.Name) -ErrorAction SilentlyContinue
     }
-    Ok $InstallDir
+    Ok ($InstallDir -replace [regex]::Escape($env:LOCALAPPDATA), '%LOCALAPPDATA%')
     Write-Host '      (You can now delete the downloaded folder if you like.)'
 
     # Start Menu shortcuts so beginners never need to find files again.
@@ -39,7 +39,7 @@ try {
     Step '2/4  Saving your hostel Wi-Fi login...'
     $credFile = Join-Path $InstallDir 'cred.xml'
     if (Test-Path $credFile) {
-        Ok 'A saved login already exists, keeping it. (Run Change-Password.bat to replace it.)'
+        Ok 'A saved login already exists, keeping it. (Use Change password to replace it.)'
     } else {
         & (Join-Path $InstallDir 'setup.ps1') -Dir $InstallDir
     }
@@ -75,7 +75,8 @@ try {
             Ok "Signed in to '$ssid'."
         } else {
             Write-Host "  Could not sign in: $($new[-1])" -ForegroundColor Yellow
-            Write-Host '  If the password was typed wrong, run Change-Password.bat.'
+            Write-Host '  If the username or password was wrong, double-click scripts\Change-Password.bat'
+            Write-Host '  (or later: Start menu > Hostel WiFi Auto-Login > Change password).'
         }
     }
 
