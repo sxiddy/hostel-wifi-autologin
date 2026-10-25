@@ -4,121 +4,136 @@
 
 **Join the hostel Wi-Fi. Get online. That's it.**
 
-A tiny PowerShell script that signs you in to the VIT hostel Wi-Fi captive portal (**any block**: Q-VIT, G-VIT, VIT-Hostel and friends) the moment you connect, so you never open a browser and type your password again.
+Signs you in to the VIT hostel Wi-Fi captive portal (**any block**: Q-VIT, G-VIT, VIT-Hostel and friends) the moment you connect, so you never open a browser and type your password again.
 
 ![Windows](https://img.shields.io/badge/Windows-10%20%7C%2011-0078D4?logo=windows&logoColor=white)
-![PowerShell](https://img.shields.io/badge/PowerShell-5.1+-5391FE?logo=powershell&logoColor=white)
+![Setup](https://img.shields.io/badge/setup-1%20double--click-brightgreen)
 ![License](https://img.shields.io/badge/License-MIT-green)
-![Dependencies](https://img.shields.io/badge/dependencies-none-brightgreen)
+![Dependencies](https://img.shields.io/badge/installs-nothing%20extra-brightgreen)
 
 </div>
 
 ---
 
-## ✨ Why
+## 🚀 Set it up in 1 minute
 
-Every time your laptop wakes up, roams, or reconnects, the hostel network drops you at a login page. This script does the typing for you, silently, in the background.
+No coding. No commands. Just three steps.
 
-- **Zero clicks.** Runs on every Wi-Fi connect and at logon.
-- **Works in every block.** All VIT networks share one portal and one login, so one script covers them. It acts on any network with "VIT" in its name and exits immediately on anything else (home, cafe, phone hotspot).
-- **Checks first.** If you already have internet it does nothing.
-- **Retries.** Six attempts, five seconds apart, in case the portal is slow to wake.
-- **Your password stays yours.** Stored encrypted with Windows DPAPI, readable only by your Windows account on your PC.
-- **No installs, no dependencies.** Just PowerShell, which ships with Windows.
+### 1. Download
 
-## 🚀 Install (1 minute)
+Click the green **`<> Code`** button at the top of this page, then **Download ZIP**.
 
-1. **Download** this repo (`Code → Download ZIP`) and extract it somewhere permanent, for example `C:\Users\<you>\WifiAutoLogin`.
-2. Open **PowerShell** in that folder and run:
+### 2. Extract
 
-   ```powershell
-   powershell -ExecutionPolicy Bypass -File .\install.ps1
-   ```
+Find the ZIP in your Downloads folder, **right-click it → Extract All → Extract**.
 
-3. Enter your hostel Wi-Fi username and password when prompted. They are saved encrypted to `cred.xml` next to the script.
+> ⚠️ **Don't skip this.** Opening `Install.bat` from *inside* the ZIP won't work. Extract first.
 
-Done. Connect to your hostel network and you're online.
+### 3. Double-click `Install.bat`
 
-> Don't move or delete the folder afterwards, because the scheduled task points to it.
+A black window opens and walks you through it:
+
+1. Type the **username and password** you normally use on the hostel Wi-Fi login page, then press Enter after each one. *(Nothing shows while you type the password. That's normal.)*
+2. Wait for **"All done!"**
+
+That's it. From now on, whenever you connect to the hostel Wi-Fi or start your laptop, you're signed in automatically.
+
+<details>
+<summary><b>Windows says "Windows protected your PC"?</b></summary>
+
+This appears for any script you download from the internet. Click **More info → Run anyway**. The whole script is a few short, readable files in this repo, so you can check exactly what it does first.
+
+</details>
+
+## 🛠 Managing it
+
+Open the **Start menu** and search for **Hostel WiFi Auto-Login**. You'll find:
+
+| Shortcut | What it does |
+| --- | --- |
+| **Check status** | Shows if it's installed, which network you're on, whether the internet works, and what it did recently |
+| **Change password** | Use this after you change your Wi-Fi password |
+| **Uninstall** | Turns it off and deletes your saved login from this PC |
+
+You can delete the downloaded folder after installing. Everything it needs has been copied to a safe place.
+
+## ✨ Why you'll like it
+
+- **Zero clicks.** Runs on every Wi-Fi connect and every Windows sign-in.
+- **Works in every block.** All VIT networks share one portal and one login, so one script covers them. It acts on any network with "VIT" in its name and ignores everything else (home, cafe, phone hotspot).
+- **Checks first.** If you already have internet, it does nothing.
+- **Retries.** Six attempts, five seconds apart, in case the portal is slow to wake up.
+- **Your password stays yours.** It's encrypted with Windows' own protection and can only be read by your Windows account on your PC. It never leaves your laptop.
+- **Nothing extra to install.** Uses only what's already in Windows.
+
+## ❓ Troubleshooting
+
+| What you see | What to do |
+| --- | --- |
+| Not signing in at all | Open **Check status**. It tells you what's wrong. |
+| "portal did not grant access" in the log | Wrong username or password. Use **Change password**. |
+| "could not resolve phc.prontonetworks.com" | The Wi-Fi portal wasn't ready yet. Disconnect and reconnect. |
+| "403 Forbidden" | You're probably already logged in on another device. Log that one out. |
+| You changed your Wi-Fi password | Use **Change password**. |
+| Want to start over | Run **Uninstall**, then double-click `Install.bat` again. |
+
+Still stuck? [Open an issue](../../issues) and paste what **Check status** shows. Never paste your password.
 
 ## 🧠 How it works
 
 ```
-Wi-Fi connects (event 8001)  ──┐
-                               ├──▶  wifi_login.ps1
-You log in to Windows ─────────┘          │
-                                          ▼
-                         VIT network? ─no─▶ exit
-                                          │ yes
-                                          ▼
-                       Already online?  ──yes──▶ exit
-                                          │ no
-                                          ▼
-              POST credentials to the Pronto portal  (up to 6 tries)
-                                          │
-                                          ▼
-                              "Logged in." → log.txt
+Wi-Fi connects  ──┐
+                  ├──▶  wifi_login.ps1
+You sign in to ───┘          │
+Windows                      ▼
+                  VIT network? ─no─▶ stop
+                             │ yes
+                             ▼
+                  Already online? ─yes─▶ stop
+                             │ no
+                             ▼
+        Send your saved login to the Pronto portal (up to 6 tries)
+                             │
+                             ▼
+                  "Logged in." → written to log.txt
 ```
 
-1. A Windows **Scheduled Task** fires at logon and whenever the WLAN service reports a new connection.
-2. The script reads the current SSID with `netsh` and exits unless its name contains `VIT`.
-3. It requests Microsoft's connectivity-test URL. If the expected text comes back, you're already online.
-4. Otherwise it posts your saved credentials to the portal's login endpoint and checks for `Access Granted`.
-5. Every outcome is appended to `log.txt`.
+`Install.bat` copies the scripts to `%LOCALAPPDATA%\HostelWifiAutoLogin`, saves your login there, and creates a Windows Scheduled Task that runs `wifi_login.ps1` at logon and whenever the WLAN service reports a new connection.
 
-## 📁 What's inside
+<details>
+<summary><b>What's in the repo</b></summary>
 
 | File | Purpose |
 | --- | --- |
-| `wifi_login.ps1` | The auto-login logic |
-| `setup.ps1` | Prompts for and encrypts your credentials into `cred.xml` |
-| `install.ps1` | Registers the scheduled task (runs `setup.ps1` first if needed) |
-| `cred.xml` | *Created on your PC, git-ignored.* Your encrypted login |
-| `log.txt` | *Created on your PC, git-ignored.* What the script did and when |
+| `Install.bat` | The only thing you need to double-click |
+| `scripts/install.ps1` | Does the install: copies files, saves login, creates the task |
+| `scripts/wifi_login.ps1` | The auto-login logic |
+| `scripts/setup.ps1` | Asks for your login and encrypts it into `cred.xml` |
+| `scripts/status.ps1` | Powers **Check status** |
+| `scripts/uninstall.ps1` | Powers **Uninstall** |
+| `scripts/*.bat` | Start-menu launchers for the scripts above |
 
-## 🔧 Handy commands
+`cred.xml` and `log.txt` are created on your PC only and are git-ignored.
 
-```powershell
-# See what happened recently
-Get-Content .\log.txt -Tail 20
-
-# Run it manually
-powershell -ExecutionPolicy Bypass -File .\wifi_login.ps1
-
-# Change your password
-powershell -ExecutionPolicy Bypass -File .\setup.ps1
-
-# Uninstall
-Unregister-ScheduledTask -TaskName "Hostel WiFi Auto Login" -Confirm:$false
-```
-
-## 🛠 Troubleshooting
-
-| Symptom | Likely cause |
-| --- | --- |
-| `No saved login. Run setup.ps1 first.` | `cred.xml` is missing. Run `setup.ps1`. |
-| `could not resolve phc.prontonetworks.com` | The portal wasn't reachable yet (common right after connecting). Reconnect and it retries. |
-| `403 Forbidden` | The portal rejected the request, usually because you're already logged in elsewhere. |
-| `portal did not grant access` | Wrong username or password. Re-run `setup.ps1`. |
-| Nothing happens | Check the task exists: `Get-ScheduledTask "Hostel WiFi Auto Login"`. |
+</details>
 
 ## 🔒 Security notes
 
-- Credentials are encrypted with the Windows Data Protection API. They can't be read on another PC or by another Windows user.
-- The portal login uses plain HTTP, because that's what the hostel portal offers. Only use this on the hostel network.
-- Never commit `cred.xml`. It is in `.gitignore`.
+- Your login is encrypted with the Windows Data Protection API. It can't be read on another PC or by another Windows user.
+- The hostel portal only offers plain HTTP, so only use this on the hostel network.
+- Never share or upload `cred.xml`.
 
 ## 🗺 Roadmap
 
-- [ ] A small tray app with a status light and a one-click "log in now"
+- [ ] A tray app with a status light and a "log in now" button
 - [ ] Multi-campus support (other campuses may use different portals)
-- [ ] Cross-platform version for Linux and macOS
+- [ ] Linux and macOS versions
 
 ## 🤝 Contributing
 
 Issues and pull requests are welcome. If your hostel uses a different portal, open an issue with the login URL and form field names.
 
-Looking for a full-featured app with a GUI and Android support? Check out [Latch by VinnovateIT](https://github.com/vinnovateit/latch). This project is the minimal, no-install alternative.
+Want a full app with a GUI and Android support? Check out [Latch by VinnovateIT](https://github.com/vinnovateit/latch). This project is the tiny, no-frills alternative.
 
 ## 📄 License
 
