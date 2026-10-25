@@ -33,7 +33,7 @@ Find the ZIP in your Downloads folder, **right-click it → Extract All → Extr
 
 A black window opens and walks you through it:
 
-1. Type the **username and password** you normally use on the hostel Wi-Fi login page, then press Enter after each one. *(Nothing shows while you type the password. That's normal.)*
+1. Type the **username and password** you normally use on the hostel Wi-Fi login page, then press Enter after each one. *(Your password shows as `****` while you type. That's normal.)*
 2. Wait for **"All done!"**
 
 That's it. From now on, whenever you connect to the hostel Wi-Fi or start your laptop, you're signed in automatically.

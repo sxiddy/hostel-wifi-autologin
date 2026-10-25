@@ -4,7 +4,7 @@ param([string]$Dir = $PSScriptRoot)
 Write-Host ''
 Write-Host 'Enter the login you normally type on the hostel Wi-Fi page.'
 Write-Host '(Usually your registration number and your Wi-Fi password.)'
-Write-Host 'Nothing is shown while you type the password. That is normal.'
+Write-Host 'Your password shows as **** while you type. That is normal.'
 Write-Host ''
 
 do {
