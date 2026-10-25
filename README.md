@@ -4,7 +4,7 @@
 
 **Join the hostel Wi-Fi. Get online. That's it.**
 
-A tiny PowerShell script that signs you in to the VIT hostel **Q-VIT** captive portal the moment you connect, so you never open a browser and type your password again.
+A tiny PowerShell script that signs you in to the VIT hostel Wi-Fi captive portal (**any block**: Q-VIT, G-VIT, VIT-Hostel and friends) the moment you connect, so you never open a browser and type your password again.
 
 ![Windows](https://img.shields.io/badge/Windows-10%20%7C%2011-0078D4?logo=windows&logoColor=white)
 ![PowerShell](https://img.shields.io/badge/PowerShell-5.1+-5391FE?logo=powershell&logoColor=white)
@@ -20,7 +20,7 @@ A tiny PowerShell script that signs you in to the VIT hostel **Q-VIT** captive p
 Every time your laptop wakes up, roams, or reconnects, the hostel network drops you at a login page. This script does the typing for you, silently, in the background.
 
 - **Zero clicks.** Runs on every Wi-Fi connect and at logon.
-- **Only touches Q-VIT.** On any other network it exits immediately.
+- **Works in every block.** All VIT networks share one portal and one login, so one script covers them. It acts on any network with "VIT" in its name and exits immediately on anything else (home, cafe, phone hotspot).
 - **Checks first.** If you already have internet it does nothing.
 - **Retries.** Six attempts, five seconds apart, in case the portal is slow to wake.
 - **Your password stays yours.** Stored encrypted with Windows DPAPI, readable only by your Windows account on your PC.
@@ -37,7 +37,7 @@ Every time your laptop wakes up, roams, or reconnects, the hostel network drops 
 
 3. Enter your hostel Wi-Fi username and password when prompted. They are saved encrypted to `cred.xml` next to the script.
 
-Done. Connect to **Q-VIT** and you're online.
+Done. Connect to your hostel network and you're online.
 
 > Don't move or delete the folder afterwards, because the scheduled task points to it.
 
@@ -48,7 +48,7 @@ Wi-Fi connects (event 8001)  ──┐
                                ├──▶  wifi_login.ps1
 You log in to Windows ─────────┘          │
                                           ▼
-                         On Q-VIT?  ──no──▶ exit
+                         VIT network? ─no─▶ exit
                                           │ yes
                                           ▼
                        Already online?  ──yes──▶ exit
@@ -61,7 +61,7 @@ You log in to Windows ─────────┘          │
 ```
 
 1. A Windows **Scheduled Task** fires at logon and whenever the WLAN service reports a new connection.
-2. The script reads the current SSID with `netsh` and exits unless it is `Q-VIT`.
+2. The script reads the current SSID with `netsh` and exits unless its name contains `VIT`.
 3. It requests Microsoft's connectivity-test URL. If the expected text comes back, you're already online.
 4. Otherwise it posts your saved credentials to the portal's login endpoint and checks for `Access Granted`.
 5. Every outcome is appended to `log.txt`.
@@ -111,7 +111,7 @@ Unregister-ScheduledTask -TaskName "Hostel WiFi Auto Login" -Confirm:$false
 ## 🗺 Roadmap
 
 - [ ] A small tray app with a status light and a one-click "log in now"
-- [ ] Support for other VIT networks and campuses
+- [ ] Multi-campus support (other campuses may use different portals)
 - [ ] Cross-platform version for Linux and macOS
 
 ## 🤝 Contributing
